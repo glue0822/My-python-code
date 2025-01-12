@@ -13,7 +13,7 @@ window.attributes('-topmost',1)
 sea=Canvas(window,width=800,height=500,bg='darkblue')
 sea.pack()
 #设置窗口
-img=Image.open(r'.\picture\ship.jpg')
+img=Image.open('ship.jpg')
 img=img.resize((40,20))
 photo=ImageTk.PhotoImage(img)
 ship_1=sea.create_image(15,15,image=photo)
