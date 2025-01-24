@@ -4,35 +4,42 @@ from random import randint
 from math import sqrt
 from PIL import ImageTk,Image
 feeling_brave=True
-#导入模块
 ship_speed=5
 score=0
+target=4000
 window=Tk()
 window.title('Bubble Blaster')
 window.attributes('-topmost',1)
 sea=Canvas(window,width=800,height=500,bg='darkblue')
 sea.pack()
-#设置窗口
 img=Image.open('ship.jpg')
 img=img.resize((40,20))
 photo=ImageTk.PhotoImage(img)
 ship_1=sea.create_image(15,15,image=photo)
 sea.coords(ship_1,15,15)
 ship_2=sea.create_oval(0,0,30,30,outline='red',state=HIDDEN)
-sea.create_polygon(180,500,300,500,300,440,fill='blue',outline='blue')
-sea.create_polygon(500,500,620,500,500,440,fill='blue',outline='blue')
-sea.create_rectangle(300,500,500,440,fill='blue',outline='blue')
 speed_out=sea.create_rectangle(310,480,490,460,outline='green')
 speed_1=sea.create_rectangle(310,480,355,460,fill='green',outline='green')
 speed_2=sea.create_rectangle(354,480,355,440,fill='green',outline='green')
 speed_3=sea.create_text(400,470,text='x100px/s',fill='white')
+target_text=sea.create_text(150,15,text='Your target:'+str(target),fill='yellow',state=NORMAL)
 sea.create_text(310,490,text='0',fill='white')
 for n in range(1,4):
     sea.create_text(310+(n*45),490,text=str(n),fill='green')
 sea.create_text(490,490,text='4',fill='red')
 sea.move(ship_1,400,250)
 sea.move(ship_2,400,250)
-#创建主体
+sea.create_text(50,30,text='TIME',fill='white')
+sea.create_text(150,30,text='SCORE',fill='white')
+time_text=sea.create_text(50,50,fill='white')
+score_text=sea.create_text(150,50,fill='white')
+speed_text=sea.create_text(400,450,fill='white')
+def show_score(score_int):
+    sea.itemconfig(score_text,text=str(score_int))
+def show_time(time_left):
+    sea.itemconfig(time_text,text=str(time_left))
+def show_speed(speed):
+    sea.itemconfig(speed_text,text='SPEED:'+str(speed))
 def move_ship_up(self):
     place=sea.coords(ship_2)
     corner=place[1]
@@ -74,7 +81,6 @@ def speed_add_minus(event):
         ship_speed-=1
         sea.move(speed_2,-9,0)
 sea.bind_all('<MouseWheel>',speed_add_minus)
-#移动主体
 bub_id=list()
 bub_r=list()
 bub_speed=list()
@@ -116,21 +122,9 @@ def collision():
             del_bub(bub_num)
     return points
 #泡泡创建等功能
-sea.create_text(50,30,text='TIME',fill='white')
-sea.create_text(150,30,text='SCORE',fill='white')
-time_text=sea.create_text(50,50,fill='white')
-score_text=sea.create_text(150,50,fill='white')
-speed_text=sea.create_text(400,450,fill='white')
-def show_score(score_int):
-    sea.itemconfig(score_text,text=str(score_int))
-def show_time(time_left):
-    sea.itemconfig(time_text,text=str(time_left))
-def show_speed(speed):
-    sea.itemconfig(speed_text,text='SPEED:'+str(speed))
-#时间和分数显示
 bonus=0
 end=time()+60
-raise_list=[speed_text,speed_out,speed_1,speed_2,speed_3,ship_1,ship_2]
+raise_list=[ship_1,ship_2,speed_1,speed_2,speed_3,speed_out,speed_text]
 #置顶列表，越往后图层越靠上
 color_list=[speed_1,speed_2]
 def raise_things():
@@ -142,7 +136,7 @@ def color_things(do):
     for x in color_list:
         sea.itemconfig(x,fill=do,outline=do)
     sea.itemconfig(speed_out,outline=do)
-while time() <end:
+while time() <end and score < target:
     try:
         if randint(1,10) == 1:
             create_bub()
@@ -164,14 +158,18 @@ while time() <end:
         show_time(int(end-time()))
         show_speed(ship_speed*20)
         window.update()
+        if end-time() < 50:
+            sea.itemconfig(target_text,state=HIDDEN)
     except TclError:
-        raise SystemExit(0)    #这行代码会导致Windows Defender将此文件打包后的exe识别成病毒(T_T),但不加会报错
+        raise SystemExit(0)
     finally:
         sleep(0.01)
-#主循环
-sea.create_text(400,250,text='GAME OVER',fill='white',font=('Helvetica',30))
-sea.create_text(400,280,text='Bonus time:'+str(bonus*10)+'s',fill='white')
-sea.create_text(400,295,text='Score:'+str(score),fill='white')
+if score <= target:
+    sea.create_text(400,250,text='GAME OVER',fill='yellow',font=('Helvetica',30))
+else:
+    sea.create_text(400,250,text='YOU WIN !',fill='yellow',font=('Helvetica',30))
+sea.create_text(400,280,text='Bonus time:'+str(bonus*10)+'s',fill='yellow')
+sea.create_text(400,295,text='Score:'+str(score),fill='yellow')
 def close_window():
     window.destroy()
 window.protocol('WM_DELETE_WINDOW',close_window)
@@ -179,4 +177,3 @@ quit_button=Button(window,text='Close',command=close_window,width=120)
 quit_button.pack()
 feeling_brave=False
 window.mainloop()
-#结束后的等待关闭
