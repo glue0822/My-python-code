@@ -2,7 +2,10 @@ from tkinter import *
 from time import sleep,time
 from random import randint
 from math import sqrt
-from PIL import ImageTk,Image
+try:
+    from PIL import ImageTk,Image
+except ModuleNotFoundError:
+    raise SystemExit(0)
 feeling_brave=True
 ship_speed=5
 score=0
